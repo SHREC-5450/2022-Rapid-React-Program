@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
   CANSparkMax motor2Left = new CANSparkMax(2, MotorType.kBrushless);
   CANSparkMax motor3Right = new CANSparkMax(3, MotorType.kBrushless);
   CANSparkMax motor4Right = new CANSparkMax(4, MotorType.kBrushless);
+  CANSparkMax motor8intake = new CANSparkMax(8, MotorType.kBrushless);
 
   XboxController controller = new XboxController(0);
   /**
@@ -88,22 +89,31 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    double speed;
+    double speedleft;
+    double speedright;
     if (controller.getXButton()){
-      speed = 0.40;
+      speedright = 0.25;
+      speedleft = 0.25;
       
     }
     else {
-      speed = 0.25;
+      speedright = 0.1;
+      speedleft = 0.1;
     }
-    double left = -controller.getLeftY() *speed;
-    double right = controller.getRightY() *speed;
+    double left = -controller.getLeftY() *speedleft;
+    double right = controller.getRightY() *speedright;
     motor1Left.set(left);
     motor2Left.set(left);
     motor3Right.set(right);
     motor4Right.set(right);
-
-    controller.getXButtonPressed();
+    
+    if (controller.getRightBumper()){
+      motor8intake.set(.1);
+    }
+    else{
+      motor8intake.set(0);
+    }
+    
 
 
   }
