@@ -35,6 +35,8 @@ public class Robot extends TimedRobot {
   CANSparkMax motor6launcher = new CANSparkMax(6, MotorType.kBrushless);
 
   XboxController controller = new XboxController(0);
+  Timer timergametime = new Timer();
+ 
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -87,21 +89,48 @@ public class Robot extends TimedRobot {
    * below with additional strings. If using the SendableChooser make sure to add them to the
    * chooser code above as well.
    */
-  @Override
+   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-
+  
+    timergametime.start();
+    
+    timergametime.get();
+        
+    while (timergametime.get() < 15){
+     motor7launcher.set(.1);
+          
+     if (timergametime.get() > 15){
+      timergametime.stop();
+      motor7launcher.set(0);
+      timergametime.reset();
+      break;
   }
-
+  }
+  }
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
       case kCustomAuto:
         // Put custom auto code here
-        break;
+        /*timergametime.get();
+        
+        while (timergametime.get() < 15){
+          motor7launcher.set(.1);
+          
+          if (timergametime.get() > 15)
+           timergametime.stop();
+            motor7launcher.set(0);
+             timergametime.reset();
+      
+          break; }*/
+        
+        
+         
+          
       case kDefaultAuto:
       default:
         // Put default auto code here
@@ -109,10 +138,7 @@ public class Robot extends TimedRobot {
     }
   }
 
-  public class Timer extends Object{
-   Timer timergametime = new  Timer();
-
-  }
+ 
 
   /** This function is called once when teleop is enabled.hello */
   @Override
