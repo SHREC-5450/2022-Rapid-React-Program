@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.Timer;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,6 +32,7 @@ public class Robot extends TimedRobot {
   CANSparkMax motor4Right = new CANSparkMax(4, MotorType.kBrushless);
   CANSparkMax motor8intake = new CANSparkMax(8, MotorType.kBrushless);
   CANSparkMax motor7launcher = new CANSparkMax(7, MotorType.kBrushless);
+  CANSparkMax motor6launcher = new CANSparkMax(6, MotorType.kBrushless);
 
   XboxController controller = new XboxController(0);
   /**
@@ -68,7 +71,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 4 right, current", motor4Right.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 8 intake, current", motor8intake.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 7 launcher, current", motor7launcher.getOutputCurrent()); 
+    SmartDashboard.putNumber("Motor 6 launcher, current", motor6launcher.getOutputCurrent());
   }
+
+
+  
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -85,6 +92,7 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+
   }
 
   /** This function is called periodically during autonomous. */
@@ -99,6 +107,11 @@ public class Robot extends TimedRobot {
         // Put default auto code here
         break;
     }
+  }
+
+  public class Timer extends Object{
+   Timer timergametime = new  Timer();
+
   }
 
   /** This function is called once when teleop is enabled. */
@@ -144,14 +157,16 @@ public class Robot extends TimedRobot {
       motor8intake.set(0);
     }
    
-    double launcher = controller.getRightTriggerAxis();
+   //double launcher = controller.getRightTriggerAxis();
     if (controller.getRightTriggerAxis()>=0.75){
      motor7launcher.set(.6);
-   }
+     motor6launcher.set(1);
+    }
    else{
      motor7launcher.set(0);
-   }
-  
+     motor6launcher.set(0);
+    }
+   
 
   }
 
