@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 /**
@@ -39,6 +40,16 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    motor1Left.setIdleMode(IdleMode.kBrake);
+    motor2Left.setIdleMode(IdleMode.kBrake);
+    motor3Right.setIdleMode(IdleMode.kBrake);
+    motor4Right.setIdleMode(IdleMode.kBrake);
+
+    motor1Left.setOpenLoopRampRate(1.75);
+    motor2Left.setOpenLoopRampRate(1.75);
+    motor3Right.setOpenLoopRampRate(1.75);
+    motor4Right.setOpenLoopRampRate(1.75);
+
   }
 
   /**
@@ -91,24 +102,35 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     double speedleft;
     double speedright;
+    //float Y;
     if (controller.getXButton()){
-      speedright = 0.25;
-      speedleft = 0.25;
+      speedright = 0.4;
+      speedleft = 0.4;
+      //Y = 40;
       
     }
     else {
-      speedright = 0.1;
-      speedleft = 0.1;
+      speedright = 0.25;
+      speedleft = 0.25;
+      //Y = 25;
     }
     double left = -controller.getLeftY() *speedleft;
     double right = controller.getRightY() *speedright;
-    motor1Left.set(left);
-    motor2Left.set(left);
-    motor3Right.set(right);
-    motor4Right.set(right);
+    if ((Math.abs(controller.getLeftY()))>.2 || (Math.abs(controller.getRightY()))>.2){
+      motor1Left.set(left);
+      motor2Left.set(left);
+      motor3Right.set(right);
+      motor4Right.set(right);
+    }
+    else if((Math.abs(controller.getLeftY()))<=.2 || (Math.abs(controller.getRightY()))<=.2){
+      motor1Left.set(0);
+      motor2Left.set(0);
+      motor3Right.set(0);
+      motor4Right.set(0);
+    }
     
     if (controller.getRightBumper()){
-      motor8intake.set(.1);
+      motor8intake.set(.25);
     }
     else{
       motor8intake.set(0);
