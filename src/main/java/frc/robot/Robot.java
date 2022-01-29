@@ -29,6 +29,7 @@ public class Robot extends TimedRobot {
   CANSparkMax motor3Right = new CANSparkMax(3, MotorType.kBrushless);
   CANSparkMax motor4Right = new CANSparkMax(4, MotorType.kBrushless);
   CANSparkMax motor8intake = new CANSparkMax(8, MotorType.kBrushless);
+  CANSparkMax motor7launcher = new CANSparkMax(7, MotorType.kBrushless);
 
   XboxController controller = new XboxController(0);
   /**
@@ -60,7 +61,14 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    SmartDashboard.putNumber("Motor 1 left, current", motor1Left.getOutputCurrent()); 
+    SmartDashboard.putNumber("Motor 2 left, current", motor2Left.getOutputCurrent()); 
+    SmartDashboard.putNumber("Motor 3 right, current", motor3Right.getOutputCurrent()); 
+    SmartDashboard.putNumber("Motor 4 right, current", motor4Right.getOutputCurrent()); 
+    SmartDashboard.putNumber("Motor 8 intake, current", motor8intake.getOutputCurrent()); 
+    SmartDashboard.putNumber("Motor 7 launcher, current", motor7launcher.getOutputCurrent()); 
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -122,7 +130,7 @@ public class Robot extends TimedRobot {
       motor3Right.set(right);
       motor4Right.set(right);
     }
-    else if((Math.abs(controller.getLeftY()))<=.2 || (Math.abs(controller.getRightY()))<=.2){
+    else{
       motor1Left.set(0);
       motor2Left.set(0);
       motor3Right.set(0);
@@ -135,8 +143,15 @@ public class Robot extends TimedRobot {
     else{
       motor8intake.set(0);
     }
-    
-
+   
+    double launcher = controller.getRightTriggerAxis();
+    if (controller.getRightTriggerAxis()>=0.75){
+     motor7launcher.set(.6);
+   }
+   else{
+     motor7launcher.set(0);
+   }
+  
 
   }
 
