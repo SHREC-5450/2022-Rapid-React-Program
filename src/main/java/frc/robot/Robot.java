@@ -146,20 +146,20 @@ public class Robot extends TimedRobot {
       motor4Right.set(-.25);
      
      }
-      else if (timergametime.get() > 6 & timergametime.get() < 7){
+      else if (timergametime.get() > 6 && timergametime.get() < 7){
       motor1Left.set(0);
       motor2Left.set(0);
       motor3Right.set(0);
       motor4Right.set(0);
 
      }
-     if (timergametime.get() > 7 & timergametime.get() < 8 ){
+     if (timergametime.get() > 7 && timergametime.get() < 8 ){
       motor1Left.set(.2);
       motor2Left.set(.2);
       motor3Right.set(.2);
       motor4Right.set(.2);
      }
-     else if (timergametime.get() > 8 & timergametime.get() < 11){
+     else if (timergametime.get() > 8 && timergametime.get() < 11){
       motor1Left.set(0);
       motor2Left.set(0);
       motor3Right.set(0);
