@@ -8,11 +8,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
+
+import javax.swing.text.Position;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -36,7 +39,9 @@ public class Robot extends TimedRobot {
 
   XboxController controller = new XboxController(0);
   Timer timergametime = new Timer();
- 
+  ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+  
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -55,6 +60,10 @@ public class Robot extends TimedRobot {
     motor2Left.setOpenLoopRampRate(1.75);
     motor3Right.setOpenLoopRampRate(1.75);
     motor4Right.setOpenLoopRampRate(1.75);
+    
+    gyro.calibrate();
+    gyro.getAngle();
+
 
   }
 
@@ -67,6 +76,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+   
+   
     SmartDashboard.putNumber("Motor 1 left, current", motor1Left.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 2 left, current", motor2Left.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 3 right, current", motor3Right.getOutputCurrent()); 
@@ -74,6 +85,24 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 8 intake, current", motor8intake.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 7 launcher, current", motor7launcher.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 6 launcher, current", motor6launcher.getOutputCurrent());
+    
+    SmartDashboard.putNumber("Motor 1 left, postion", motor1Left.getEncoder().getPosition());
+    SmartDashboard.putNumber("Motor 2 left, postion", motor2Left.getEncoder().getPosition());
+    SmartDashboard.putNumber("Motor 3 right, postion", motor3Right.getEncoder().getPosition());
+    SmartDashboard.putNumber("Motor 4 right, postion", motor4Right.getEncoder().getPosition());
+    
+    SmartDashboard.putNumber("Motor 1 left, velocity", motor1Left.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Motor 2 left, velocity", motor2Left.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Motor 3 right, velocity", motor3Right.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Motor 4 right, velocity", motor4Right.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Motor 8 intake, velocity", motor8intake.getEncoder().getVelocity()); 
+    SmartDashboard.putNumber("Motor 7 launcher, velocity", motor7launcher.getEncoder().getVelocity()); 
+    SmartDashboard.putNumber("Motor 6 launcher, velocity", motor6launcher.getEncoder().getVelocity()); 
+    
+    SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
+  
+  
+  
   }
 
 
@@ -94,42 +123,68 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+   
+   /*while (motor3Right.getEncoder().getPosition() < 21.2 ){
+    motor3Right.set(.25);
   
+   if (motor3Right.getEncoder().getPosition() > 21.2 ){
+    motor3Right.set(0);
+}
+}*/
+   
     timergametime.start();
     
     timergametime.get();
         
-    while (timergametime.get() < 15){
-     motor7launcher.set(.1);
-          
-     if (timergametime.get() > 15){
-      timergametime.stop();
+    while (timergametime.get() < 17 ){
+     gyro.getAngle();
+      
+     if (timergametime.get() < 6){
+      motor1Left.set(.252);
+      motor2Left.set(.252);
+      motor3Right.set(-.25);
+      motor4Right.set(-.25);
+     
+     }
+      else if (timergametime.get() > 6 & timergametime.get() < 7){
+      motor1Left.set(0);
+      motor2Left.set(0);
+      motor3Right.set(0);
+      motor4Right.set(0);
+
+     }
+     if (timergametime.get() > 7 & timergametime.get() < 8 ){
+      motor1Left.set(.2);
+      motor2Left.set(.2);
+      motor3Right.set(.2);
+      motor4Right.set(.2);
+     }
+     else if (timergametime.get() > 8 & timergametime.get() < 11){
+      motor1Left.set(0);
+      motor2Left.set(0);
+      motor3Right.set(0);
+      motor4Right.set(0);
+      motor6launcher.set(.2);
+      motor7launcher.set(.2);
+     
+     }
+     else {
+      motor6launcher.set(0);
       motor7launcher.set(0);
-      timergametime.reset();
-      break;
-  }
-  }
-  }
+
+    }
+    }
+     
+}
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
       case kCustomAuto:
         // Put custom auto code here
-        /*timergametime.get();
+       
         
-        while (timergametime.get() < 15){
-          motor7launcher.set(.1);
-          
-          if (timergametime.get() > 15)
-           timergametime.stop();
-            motor7launcher.set(0);
-             timergametime.reset();
-      
-          break; }*/
-        
-        
-         
+         break;
           
       case kDefaultAuto:
       default:
@@ -158,7 +213,7 @@ public class Robot extends TimedRobot {
     }
     else {
       speedright = 0.25;
-      speedleft = 0.25;
+      speedleft = 0.252;
       //Y = 25;
     }
     double left = -controller.getLeftY() *speedleft;
@@ -186,7 +241,7 @@ public class Robot extends TimedRobot {
    //double launcher = controller.getRightTriggerAxis();
     if (controller.getRightTriggerAxis()>=0.75){
      motor7launcher.set(.6);
-     motor6launcher.set(1);
+     motor6launcher.set(.1);
     }
    else{
      motor7launcher.set(0);
