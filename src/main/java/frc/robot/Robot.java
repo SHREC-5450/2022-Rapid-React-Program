@@ -33,9 +33,10 @@ public class Robot extends TimedRobot {
   CANSparkMax motor2Left = new CANSparkMax(2, MotorType.kBrushless);
   CANSparkMax motor3Right = new CANSparkMax(3, MotorType.kBrushless);
   CANSparkMax motor4Right = new CANSparkMax(4, MotorType.kBrushless);
-  CANSparkMax motor8intake = new CANSparkMax(8, MotorType.kBrushless);
-  CANSparkMax motor7launcher = new CANSparkMax(7, MotorType.kBrushless);
+  CANSparkMax motor5intake = new CANSparkMax(5, MotorType.kBrushless);
   CANSparkMax motor6launcher = new CANSparkMax(6, MotorType.kBrushless);
+  CANSparkMax motor7launcher = new CANSparkMax(7, MotorType.kBrushless);
+  CANSparkMax motor8launcher = new CANSparkMax(8, MotorType.kBrushless);
 
   XboxController controller = new XboxController(0);
   Timer timergametime = new Timer();
@@ -82,10 +83,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 2 left, current", motor2Left.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 3 right, current", motor3Right.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 4 right, current", motor4Right.getOutputCurrent()); 
-    SmartDashboard.putNumber("Motor 8 intake, current", motor8intake.getOutputCurrent()); 
+    SmartDashboard.putNumber("Motor 5 intake, current", motor5intake.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 7 launcher, current", motor7launcher.getOutputCurrent()); 
     SmartDashboard.putNumber("Motor 6 launcher, current", motor6launcher.getOutputCurrent());
-    
+    SmartDashboard.putNumber("Motor 8 launcher, current", motor8launcher.getOutputCurrent());
+
     SmartDashboard.putNumber("Motor 1 left, postion", motor1Left.getEncoder().getPosition());
     SmartDashboard.putNumber("Motor 2 left, postion", motor2Left.getEncoder().getPosition());
     SmartDashboard.putNumber("Motor 3 right, postion", motor3Right.getEncoder().getPosition());
@@ -95,10 +97,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 2 left, velocity", motor2Left.getEncoder().getVelocity());
     SmartDashboard.putNumber("Motor 3 right, velocity", motor3Right.getEncoder().getVelocity());
     SmartDashboard.putNumber("Motor 4 right, velocity", motor4Right.getEncoder().getVelocity());
-    SmartDashboard.putNumber("Motor 8 intake, velocity", motor8intake.getEncoder().getVelocity()); 
+    SmartDashboard.putNumber("Motor 5 intake, velocity", motor5intake.getEncoder().getVelocity()); 
     SmartDashboard.putNumber("Motor 7 launcher, velocity", motor7launcher.getEncoder().getVelocity()); 
     SmartDashboard.putNumber("Motor 6 launcher, velocity", motor6launcher.getEncoder().getVelocity()); 
-    
+    SmartDashboard.putNumber("Motor 8 launcher, velocity", motor8launcher.getEncoder().getVelocity());
+
     SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
   
   
@@ -166,12 +169,12 @@ public class Robot extends TimedRobot {
       motor4Right.set(0);
       motor6launcher.set(.2);
       motor7launcher.set(.2);
-     
+      motor8launcher.set(.2);
      }
      else {
       motor6launcher.set(0);
       motor7launcher.set(0);
-
+      motor8launcher.set(0);
     }
     }
      
@@ -232,20 +235,22 @@ public class Robot extends TimedRobot {
     }
     
     if (controller.getRightBumper()){
-      motor8intake.set(.25);
+      motor5intake.set(.25);
     }
     else{
-      motor8intake.set(0);
+      motor5intake.set(0);
     }
    
    //double launcher = controller.getRightTriggerAxis();
     if (controller.getRightTriggerAxis()>=0.75){
      motor7launcher.set(.6);
-     motor6launcher.set(.1);
+     motor6launcher.set(.3);
+     motor8launcher.set(.8);
     }
    else{
      motor7launcher.set(0);
      motor6launcher.set(0);
+     motor8launcher.set(0);
     }
    
 
