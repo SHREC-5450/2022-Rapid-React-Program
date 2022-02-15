@@ -9,13 +9,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 
-import javax.swing.text.Position;
+//import javax.swing.text.Position;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.PowerDistribution;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -34,14 +35,15 @@ public class Robot extends TimedRobot {
   CANSparkMax motor3Right = new CANSparkMax(3, MotorType.kBrushless);
   CANSparkMax motor4Right = new CANSparkMax(4, MotorType.kBrushless);
   CANSparkMax motor5intake = new CANSparkMax(5, MotorType.kBrushless);
-  CANSparkMax motor6launcher = new CANSparkMax(6, MotorType.kBrushless);
+  CANSparkMax motor6index = new CANSparkMax(6, MotorType.kBrushless);
   CANSparkMax motor7launcher = new CANSparkMax(7, MotorType.kBrushless);
   CANSparkMax motor8launcher = new CANSparkMax(8, MotorType.kBrushless);
 
-  XboxController controller = new XboxController(0);
+  XboxController controller1 = new XboxController(0);
+  XboxController controller2 = new XboxController(1);
   Timer timergametime = new Timer();
   ADXRS450_Gyro gyro = new ADXRS450_Gyro();
-  
+  PowerDistribution pdh = new PowerDistribution();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -79,14 +81,14 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
    
    
-    SmartDashboard.putNumber("Motor 1 left, current", motor1Left.getOutputCurrent()); 
-    SmartDashboard.putNumber("Motor 2 left, current", motor2Left.getOutputCurrent()); 
-    SmartDashboard.putNumber("Motor 3 right, current", motor3Right.getOutputCurrent()); 
-    SmartDashboard.putNumber("Motor 4 right, current", motor4Right.getOutputCurrent()); 
-    SmartDashboard.putNumber("Motor 5 intake, current", motor5intake.getOutputCurrent()); 
-    SmartDashboard.putNumber("Motor 7 launcher, current", motor7launcher.getOutputCurrent()); 
-    SmartDashboard.putNumber("Motor 6 launcher, current", motor6launcher.getOutputCurrent());
-    SmartDashboard.putNumber("Motor 8 launcher, current", motor8launcher.getOutputCurrent());
+    SmartDashboard.putNumber("Motor 1 left, current", pdh.getCurrent(11)); 
+    SmartDashboard.putNumber("Motor 2 left, current", pdh.getCurrent(10)); 
+    SmartDashboard.putNumber("Motor 3 right, current", pdh.getCurrent(19)); 
+    SmartDashboard.putNumber("Motor 4 right, current", pdh.getCurrent(18)); 
+    SmartDashboard.putNumber("Motor 5 intake, current", pdh.getCurrent(14)); 
+    SmartDashboard.putNumber("Motor 7 launcher, current", pdh.getCurrent(6)); 
+    SmartDashboard.putNumber("Motor 6 launcher, current", pdh.getCurrent(12));
+    SmartDashboard.putNumber("Motor 8 launcher, current", pdh.getCurrent(13));
 
     SmartDashboard.putNumber("Motor 1 left, postion", motor1Left.getEncoder().getPosition());
     SmartDashboard.putNumber("Motor 2 left, postion", motor2Left.getEncoder().getPosition());
@@ -99,7 +101,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 4 right, velocity", motor4Right.getEncoder().getVelocity());
     SmartDashboard.putNumber("Motor 5 intake, velocity", motor5intake.getEncoder().getVelocity()); 
     SmartDashboard.putNumber("Motor 7 launcher, velocity", motor7launcher.getEncoder().getVelocity()); 
-    SmartDashboard.putNumber("Motor 6 launcher, velocity", motor6launcher.getEncoder().getVelocity()); 
+    SmartDashboard.putNumber("Motor 6 launcher, velocity", motor6index.getEncoder().getVelocity()); 
     SmartDashboard.putNumber("Motor 8 launcher, velocity", motor8launcher.getEncoder().getVelocity());
 
     SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
@@ -167,12 +169,12 @@ public class Robot extends TimedRobot {
       motor2Left.set(0);
       motor3Right.set(0);
       motor4Right.set(0);
-      motor6launcher.set(.2);
+      motor6index.set(.2);
       motor7launcher.set(.2);
       motor8launcher.set(.2);
      }
      else {
-      motor6launcher.set(0);
+      motor6index.set(0);
       motor7launcher.set(0);
       motor8launcher.set(0);
     }
@@ -207,21 +209,22 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     double speedleft;
     double speedright;
-    //float Y;
-    if (controller.getXButton()){
+
+    if (controller1.getXButton()){
       speedright = 0.4;
       speedleft = 0.4;
-      //Y = 40;
-      
+    }
+    else if (controller1.getBButton()){
+      speedright = -0.25;
+      speedleft = -0.252;
     }
     else {
       speedright = 0.25;
       speedleft = 0.252;
-      //Y = 25;
     }
-    double left = -controller.getLeftY() *speedleft;
-    double right = controller.getRightY() *speedright;
-    if ((Math.abs(controller.getLeftY()))>.2 || (Math.abs(controller.getRightY()))>.2){
+    double left = -controller1.getLeftY() *speedleft;
+    double right = controller1.getRightY() *speedright;
+    if ((Math.abs(controller1.getLeftY()))>.2 || (Math.abs(controller1.getRightY()))>.2){
       motor1Left.set(left);
       motor2Left.set(left);
       motor3Right.set(right);
@@ -234,26 +237,37 @@ public class Robot extends TimedRobot {
       motor4Right.set(0);
     }
     
-    if (controller.getRightBumper()){
-      motor5intake.set(.25);
+    if (controller1.getRightBumper()){
+      motor5intake.set(-.25);
     }
     else{
       motor5intake.set(0);
     }
    
-   //double launcher = controller.getRightTriggerAxis();
-    if (controller.getRightTriggerAxis()>=0.75){
-     motor7launcher.set(.6);
-     motor6launcher.set(.3);
-     motor8launcher.set(.8);
+    //double launcher = controller.getRightTriggerAxis();
+   
+    if (controller2.getRightTriggerAxis()>=0.75){
+     motor7launcher.set(.5);                                                                                                                                                                                                    
+     motor8launcher.set(-.5);
     }
    else{
      motor7launcher.set(0);
-     motor6launcher.set(0);
      motor8launcher.set(0);
     }
    
-
+    if (controller2.getLeftTriggerAxis()>=0.75 && controller2.getBButton()){
+      motor6index.set(.5);
+    }
+    else if (controller2.getLeftTriggerAxis()>=0.75 && controller2.getAButton()){
+      motor6index.set(-.15);
+      motor8launcher.set(.3);
+    }
+    else if (controller2.getLeftTriggerAxis()>=0.75){
+      motor6index.set(.3);
+    }
+    else{
+      motor6index.set(0);
+    }
   }
 
   /** This function is called once when the robot is disabled. */
