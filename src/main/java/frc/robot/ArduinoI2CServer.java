@@ -1,8 +1,5 @@
 package frc.robot;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-
 import edu.wpi.first.wpilibj.I2C;
 
 public class ArduinoI2CServer {
@@ -15,10 +12,11 @@ public class ArduinoI2CServer {
         this.i2CServer = new I2C(I2C.Port.kOnboard, this.arduinoAddress);
     }
 
-    public FloatBuffer getData(char request) {
-        ByteBuffer buffer = ByteBuffer.allocate(12);
-        
+    public byte[] getData(char request) {
+        byte buffer[] = new byte[24];
+        byte toSend[] = {(byte)request};
+        i2CServer.transaction(toSend, 1, buffer, 24);
 
-        return buffer.asFloatBuffer();
+        return buffer;
     }
 }
