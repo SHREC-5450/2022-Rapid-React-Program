@@ -17,6 +17,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
+import frc.robot.ArduinoI2CServer;
+import frc.robot.CustomGyroscope;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -42,6 +45,8 @@ public class Robot extends TimedRobot {
   Timer timergametime = new Timer();
   ADXRS450_Gyro gyro = new ADXRS450_Gyro();
   
+  ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
+  CustomGyroscope gyro1 = new CustomGyroscope(arduino);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -104,7 +109,9 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
   
-  
+    SmartDashboard.putNumber("Custom Gyro X", gyro1.getOrientationX());
+    SmartDashboard.putNumber("Custom Gyro Y", gyro1.getOrientationY());
+    SmartDashboard.putNumber("Custom Gyro Z", gyro1.getOrientationZ());
   
   }
 
