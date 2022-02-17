@@ -18,8 +18,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
-import frc.robot.ArduinoI2CServer;
-import frc.robot.CustomGyroscope;
+//import frc.robot.ArduinoI2CServer;
+//import frc.robot.CustomGyroscope;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
