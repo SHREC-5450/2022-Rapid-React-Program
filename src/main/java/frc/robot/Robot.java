@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
+import frc.robot.ArduinoI2CServer;
+import frc.robot.CustomGyroscope;
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -44,6 +46,10 @@ public class Robot extends TimedRobot {
   Timer timergametime = new Timer();
   ADXRS450_Gyro gyro = new ADXRS450_Gyro();
   PowerDistribution pdh = new PowerDistribution();
+  boolean inverse = false;
+
+  ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
+  CustomGyroscope gyro1 = new CustomGyroscope(arduino);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -86,7 +92,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 3 right, current", pdh.getCurrent(19)); 
     SmartDashboard.putNumber("Motor 4 right, current", pdh.getCurrent(18)); 
     SmartDashboard.putNumber("Motor 5 intake, current", pdh.getCurrent(14)); 
-    SmartDashboard.putNumber("Motor 7 launcher, current", pdh.getCurrent(6)); 
+    SmartDashboard.putNumber("Motor 7 launcher, current", pdh.getCurrent(17)); 
     SmartDashboard.putNumber("Motor 6 launcher, current", pdh.getCurrent(12));
     SmartDashboard.putNumber("Motor 8 launcher, current", pdh.getCurrent(13));
 
@@ -105,8 +111,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 8 launcher, velocity", motor8launcher.getEncoder().getVelocity());
 
     SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
-  
-  
+
+      
+    SmartDashboard.putNumber("Custom Gyro X", gyro1.getOrientationX());
+    SmartDashboard.putNumber("Custom Gyro Y", gyro1.getOrientationY());
+    SmartDashboard.putNumber("Custom Gyro Z", gyro1.getOrientationZ());
   
   }
 
@@ -210,20 +219,30 @@ public class Robot extends TimedRobot {
     double speedleft;
     double speedright;
 
+    if(controller1.getBButtonPressed()){
+      inverse = !inverse;
+    }
+
     if (controller1.getXButton()){
       speedright = 0.4;
       speedleft = 0.4;
     }
-    else if (controller1.getBButton()){
-      speedright = -0.25;
-      speedleft = -0.252;
-    }
     else {
       speedright = 0.25;
-      speedleft = 0.252;
+      speedleft = 0.25;
     }
-    double left = -controller1.getLeftY() *speedleft;
-    double right = controller1.getRightY() *speedright;
+
+    double left;
+    double right;
+    if (inverse == true){
+      left = controller1.getLeftY() *speedleft;
+      right = -controller1.getRightY() *speedright;
+    }
+    else{
+      left = -controller1.getLeftY() *speedleft;
+      right = controller1.getRightY() *speedright;
+    }
+
     if ((Math.abs(controller1.getLeftY()))>.2 || (Math.abs(controller1.getRightY()))>.2){
       motor1Left.set(left);
       motor2Left.set(left);
@@ -240,25 +259,26 @@ public class Robot extends TimedRobot {
     if (controller1.getRightBumper()){
       motor5intake.set(-.25);
     }
+    else if (controller1.getLeftBumper()){
+      motor5intake.set(.25);
+    }
     else{
       motor5intake.set(0);
     }
    
-    //double launcher = controller.getRightTriggerAxis();
-   
     if (controller2.getRightTriggerAxis()>=0.75){
-     motor7launcher.set(.5);                                                                                                                                                                                                    
-     motor8launcher.set(-.5);
+     motor7launcher.set(-.50);                                                                                                                                                                                                    
+     motor8launcher.set(-.45);
     }
    else{
      motor7launcher.set(0);
      motor8launcher.set(0);
     }
    
-    if (controller2.getLeftTriggerAxis()>=0.75 && controller2.getBButton()){
+    if (controller2.getLeftTriggerAxis()>=0.75 && controller2.getXButton()){
       motor6index.set(.5);
     }
-    else if (controller2.getLeftTriggerAxis()>=0.75 && controller2.getAButton()){
+    else if (controller2.getLeftTriggerAxis()>=0.75 && controller2.getBButton()){
       motor6index.set(-.15);
       motor8launcher.set(.3);
     }
