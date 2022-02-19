@@ -303,10 +303,8 @@ public class Robot extends TimedRobot {
     }
 
     if (climber == true) {
-      climbertime.start();
-      climbertime.get();
       
-      while (timergametime.get() <= 5){
+      if (timergametime.get() <= 5){
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
       }
