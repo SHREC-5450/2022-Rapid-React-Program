@@ -47,6 +47,7 @@ public class Robot extends TimedRobot {
   XboxController controller1 = new XboxController(0);
   XboxController controller2 = new XboxController(1);
   Timer timergametime = new Timer();
+  Timer climbertime = new Timer();
   ADXRS450_Gyro gyro = new ADXRS450_Gyro();
   PowerDistribution pdh = new PowerDistribution();
   boolean inverse = false;
@@ -302,8 +303,9 @@ public class Robot extends TimedRobot {
     }
 
     if (climber == true) {
-      timergametime.start();
-      timergametime.get();
+      climbertime.start();
+      climbertime.get();
+      
       while (timergametime.get() <= 5){
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
@@ -312,8 +314,8 @@ public class Robot extends TimedRobot {
         climber = false;
         motor9leftarmclimb.set(0);
         motor10rightarmclimb.set(0);
-        timergametime.stop();
-        timergametime.reset();
+        climbertime.stop();
+        climbertime.reset();
       }
     }
   }
