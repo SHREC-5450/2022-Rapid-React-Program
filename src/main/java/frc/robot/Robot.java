@@ -18,6 +18,7 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
 //import frc.robot.ArduinoI2CServer;
@@ -30,8 +31,14 @@ import edu.wpi.first.wpilibj.PowerDistribution;
  * project.
  */
 public class Robot extends TimedRobot {
+
+
+  public static final double fastSpeed = 0.5;
+  public static final double slowSpeed = 0.25;
+
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
+  private static final String kCustomAuto2 = "My Auto 2";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
@@ -58,6 +65,8 @@ public class Robot extends TimedRobot {
   ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
   CustomGyroscope gyro1 = new CustomGyroscope(arduino);
 
+  DigitalInput limitSwitch = new DigitalInput(0);
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -66,7 +75,10 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
+    m_chooser.addOption("My Auto 2", kCustomAuto2);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+
     motor1Left.setIdleMode(IdleMode.kBrake);
     motor2Left.setIdleMode(IdleMode.kBrake);
     motor3Right.setIdleMode(IdleMode.kBrake);
@@ -146,7 +158,7 @@ public class Robot extends TimedRobot {
    @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    //m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
    
    /*while (motor3Right.getEncoder().getPosition() < 21.2 ){
@@ -210,12 +222,18 @@ public class Robot extends TimedRobot {
        
         
          break;
+
+      case kCustomAuto2:
+
+        break;
           
       case kDefaultAuto:
       default:
         // Put default auto code here
         break;
     }
+
+
   }
 
  
@@ -227,6 +245,9 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+
+    limitSwitch.get();
+
     double speedleft;
     double speedright;
 
@@ -234,17 +255,17 @@ public class Robot extends TimedRobot {
       inverse = !inverse;
     }
     
-    if (controller1.getStartButton()){
+    if (controller1.getStartButtonPressed()){
       climber = !climber;
     }
 
     if (controller1.getXButton()){
-      speedright = 0.4;
-      speedleft = 0.4;
+      speedright = fastSpeed;
+      speedleft = fastSpeed;
     }
     else {
-      speedright = 0.25;
-      speedleft = 0.25;
+      speedright = slowSpeed;
+      speedleft = slowSpeed;
     }
 
     double left;
@@ -263,6 +284,8 @@ public class Robot extends TimedRobot {
       motor2Left.set(left);
       motor3Right.set(right);
       motor4Right.set(right);
+
+      runDrive(left, right);
     }
     else{
       motor1Left.set(0);
@@ -306,7 +329,11 @@ public class Robot extends TimedRobot {
 
     if (climber == true) {
       
+<<<<<<< HEAD
       if (timergametime.get() <= 5){
+=======
+      while (timergametime.get() <= 5 && !limitSwitch.get()){
+>>>>>>> bd9548614c48eea0d3c060669b37a7a2786a7e0b
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
       }
@@ -335,4 +362,11 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+
+  public void runDrive(double leftSpeed, double rightSpeed) {
+    
+
+    
+  }
 }

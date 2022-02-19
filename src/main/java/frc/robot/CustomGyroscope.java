@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 public class CustomGyroscope {
     
     private ArduinoI2CServer arduino;
