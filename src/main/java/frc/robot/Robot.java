@@ -33,8 +33,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 public class Robot extends TimedRobot {
 
 
-  public static final double fastSpeed = 0.5;
-  public static final double slowSpeed = 0.25;
+  public static final double fastSpeed = 0.5, slowSpeed = 0.25, trig_axis = 0.75, speedoffset = 1.008;
 
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -65,7 +64,10 @@ public class Robot extends TimedRobot {
   ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
   CustomGyroscope gyro1 = new CustomGyroscope(arduino);
 
-  DigitalInput limitSwitch = new DigitalInput(0);
+  DigitalInput upperSwitchleft = new DigitalInput(0);
+  DigitalInput upperSwitchright = new DigitalInput(1);
+  DigitalInput lowerSwitchleft = new DigitalInput(2);
+  DigitalInput lowerSwitchright = new DigitalInput(3);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -246,7 +248,10 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    limitSwitch.get();
+    upperSwitchleft.get();
+    upperSwitchright.get();
+    lowerSwitchleft.get();
+
 
     double speedleft;
     double speedright;
@@ -280,20 +285,12 @@ public class Robot extends TimedRobot {
     }
 
     if ((Math.abs(controller1.getLeftY()))>.2 || (Math.abs(controller1.getRightY()))>.2){
-      motor1Left.set(left);
-      motor2Left.set(left);
-      motor3Right.set(right);
-      motor4Right.set(right);
-
       runDrive(left, right);
     }
     else{
-      motor1Left.set(0);
-      motor2Left.set(0);
-      motor3Right.set(0);
-      motor4Right.set(0);
+      runDrive(0,0);
     }
-    
+
     if (controller1.getRightBumper()){
       motor5intake.set(-.25);
     }
@@ -304,7 +301,8 @@ public class Robot extends TimedRobot {
       motor5intake.set(0);
     }
    
-    if (controller2.getRightTriggerAxis()>=0.75){
+
+    if (controller2.getRightTriggerAxis()>= trig_axis){
      motor7launcher.set(-.50);                                                                                                                                                                                                    
      motor8launcher.set(-.45);
     }
@@ -313,14 +311,14 @@ public class Robot extends TimedRobot {
      motor8launcher.set(0);
     }
    
-    if (controller2.getLeftTriggerAxis()>=0.75 && controller2.getXButton()){
+    if (controller2.getLeftTriggerAxis()>=trig_axis && controller2.getXButton()){
       motor6index.set(.5);
     }
-    else if (controller2.getLeftTriggerAxis()>=0.75 && controller2.getBButton()){
+    else if (controller2.getLeftTriggerAxis()>=trig_axis && controller2.getBButton()){
       motor6index.set(-.15);
       motor8launcher.set(.3);
     }
-    else if (controller2.getLeftTriggerAxis()>=0.75){
+    else if (controller2.getLeftTriggerAxis()>=trig_axis){
       motor6index.set(.3);
     }
     else{
@@ -328,23 +326,21 @@ public class Robot extends TimedRobot {
     }
 
     if (climber == true) {
-      
-<<<<<<< HEAD
-      if (timergametime.get() <= 5){
-=======
-      while (timergametime.get() <= 5 && !limitSwitch.get()){
->>>>>>> bd9548614c48eea0d3c060669b37a7a2786a7e0b
+      if (!upperSwitchleft.get() && !upperSwitchright.get()){
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
       }
-      if (timergametime.get() > 5) {
+      else if (!lowerSwitchleft.get() && !lowerSwitchright.get() && upperSwitchleft.get() && upperSwitchright.get()) {
         climber = false;
         motor9leftarmclimb.set(0);
         motor10rightarmclimb.set(0);
-        climbertime.stop();
-        climbertime.reset();
       }
     }
+
+  
+  
+  
+  
   }
 
   /** This function is called once when the robot is disabled. */
@@ -365,8 +361,9 @@ public class Robot extends TimedRobot {
 
 
   public void runDrive(double leftSpeed, double rightSpeed) {
-    
-
-    
+    motor1Left.set(leftSpeed * speedoffset);
+    motor2Left.set(leftSpeed * speedoffset);
+    motor3Right.set(rightSpeed);
+    motor4Right.set(rightSpeed);
   }
 }
