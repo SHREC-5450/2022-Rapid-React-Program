@@ -1,15 +1,19 @@
 package frc.robot;
 
-public class CustomGyroscope {
+public class CustomGyroscope implements Runnable {
 
     private ArduinoI2CServer arduino;
+
+    private float
+    orientation[],
+    acceleration[];
 
     public CustomGyroscope(ArduinoI2CServer arduino) {
         this.arduino = arduino;
     }
 
     public float[] getOrientation() {
-        return getRaw('o');
+        return orientation;
     }
 
     public float getOrientationX() {
@@ -25,7 +29,7 @@ public class CustomGyroscope {
     }
 
     public float[] getAcceleration() {
-        return getRaw('a');
+        return acceleration;
     }
 
     public float getAccelerationX() {
@@ -74,5 +78,12 @@ public class CustomGyroscope {
         };
 
         return temp1;
+    }
+
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        orientation = getRaw('o');
+        acceleration = getRaw('a');
     }
 }

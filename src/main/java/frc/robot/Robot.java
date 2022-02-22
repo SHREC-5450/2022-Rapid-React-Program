@@ -9,16 +9,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 
-import javax.swing.text.Position;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-
-import frc.robot.ArduinoI2CServer;
-import frc.robot.CustomGyroscope;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -48,6 +43,8 @@ public class Robot extends TimedRobot {
   ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
   CustomGyroscope gyro1 = new CustomGyroscope(arduino);
 
+  Thread gyroThread = new Thread(gyro1);
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -70,7 +67,7 @@ public class Robot extends TimedRobot {
     gyro.calibrate();
     gyro.getAngle();
 
-
+    gyroThread.start();
   }
 
   /**
