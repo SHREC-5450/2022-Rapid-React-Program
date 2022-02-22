@@ -11,8 +11,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 
-//import javax.swing.text.Position;
-
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -61,13 +59,15 @@ public class Robot extends TimedRobot {
   boolean inverse = false;
   boolean climber = false;
 
-  ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
-  CustomGyroscope gyro1 = new CustomGyroscope(arduino);
-
   DigitalInput upperSwitchleft = new DigitalInput(0);
   DigitalInput upperSwitchright = new DigitalInput(1);
   DigitalInput lowerSwitchleft = new DigitalInput(2);
   DigitalInput lowerSwitchright = new DigitalInput(3);
+  
+  ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
+  CustomGyroscope gyro1 = new CustomGyroscope(arduino);
+
+  Thread gyroThread = new Thread(gyro1);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -94,7 +94,7 @@ public class Robot extends TimedRobot {
     gyro.calibrate();
     gyro.getAngle();
 
-
+    gyroThread.start();
   }
 
   /**
@@ -136,8 +136,7 @@ public class Robot extends TimedRobot {
     //SmartDashboard.putNumber("Motor 10 right arm, velocity", motor10rightarmclimb.getEncoder().getVelocity());
 
     SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
-
-      
+  
     SmartDashboard.putNumber("Custom Gyro X", gyro1.getOrientationX());
     SmartDashboard.putNumber("Custom Gyro Y", gyro1.getOrientationY());
     SmartDashboard.putNumber("Custom Gyro Z", gyro1.getOrientationZ());
