@@ -120,7 +120,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 8 launcher, current", pdh.getCurrent(13));
     //SmartDashboard.putNumber("Motor 9 left arm, current", pdh.getCurrent(9));
     //SmartDashboard.putNumber("Motor 10 right arm, current", pdh.getCurrent(0));
-    //SmartDashboard.putNumber("Motor 11 lift, current", pdh.getcurrent(15))
+    //SmartDashboard.putNumber("Motor 11 lift, current", pdh.getcurrent(15));
 
     SmartDashboard.putNumber("Motor 1 left, postion", motor1Left.getEncoder().getPosition());
     SmartDashboard.putNumber("Motor 2 left, postion", motor2Left.getEncoder().getPosition());
@@ -254,7 +254,7 @@ public class Robot extends TimedRobot {
     upperSwitchleft.get();
     upperSwitchright.get();
     lowerSwitchleft.get();
-
+    lowerSwitchright.get();
 
     double speedleft;
     double speedright;
@@ -308,16 +308,28 @@ public class Robot extends TimedRobot {
       motor5intake.set(0);
     }
     
-    if (intakeSwitch == true){
-     
+    if (intakeSwitch == true ){
+      
       if (motor11lift.getEncoder().getPosition() < 10.6 ){
-       motor11lift.set(.1);
+       motor11lift.set(.05);
       }
       if (motor11lift.getEncoder().getPosition() > 10.6){
        motor11lift.set(0);
       }
-  
+      
     }
+    else if (controller1.getAButton() && intakeSwitch == false){
+      
+      if (motor11lift.getEncoder().getPosition() > 10.6 ){
+        motor11lift.set(.05);
+       }
+      if (motor11lift.getEncoder().getPosition() < 10.6){
+        motor11lift.set(0);
+      }
+
+    }
+    
+  
 
     if (controller2.getRightTriggerAxis()>= trig_axis){
      motor7launcher.set(-.50);                                                                                                                                                                                                    
@@ -342,18 +354,19 @@ public class Robot extends TimedRobot {
       motor6index.set(0);
     }
 
+   
     if (climber == true) {
       if (!upperSwitchleft.get() && !upperSwitchright.get()){
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
       }
+      
       else if (!lowerSwitchleft.get() && !lowerSwitchright.get() && upperSwitchleft.get() && upperSwitchright.get()) {
         climber = false;
         motor9leftarmclimb.set(0);
         motor10rightarmclimb.set(0);
       }
     }
-
   
   
   
