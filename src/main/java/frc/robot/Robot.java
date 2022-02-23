@@ -241,7 +241,6 @@ public class Robot extends TimedRobot {
 
   }
 
- 
 
   /** This function is called once when teleop is enabled.hello */
   @Override
@@ -310,27 +309,25 @@ public class Robot extends TimedRobot {
     
     if (intakeSwitch == true ){
       
-      if (motor11lift.getEncoder().getPosition() < 10.6 ){
-       motor11lift.set(.05);
+      if (motor11lift.getEncoder().getPosition() < 9.9375 ){
+       motor11lift.set(-.05);
       }
-      if (motor11lift.getEncoder().getPosition() > 10.6){
+      else if (motor11lift.getEncoder().getPosition() >= 9.9375){
        motor11lift.set(0);
       }
       
     }
-    else if (controller1.getAButton() && intakeSwitch == false){
+    else if (controller2.getAButton() && intakeSwitch == false){
       
-      if (motor11lift.getEncoder().getPosition() > 10.6 ){
+      if (motor11lift.getEncoder().getPosition() > 6.625 ){
         motor11lift.set(.05);
        }
-      if (motor11lift.getEncoder().getPosition() < 10.6){
+      else if (motor11lift.getEncoder().getPosition() < 6.625){
         motor11lift.set(0);
       }
 
     }
     
-  
-
     if (controller2.getRightTriggerAxis()>= trig_axis){
      motor7launcher.set(-.50);                                                                                                                                                                                                    
      motor8launcher.set(-.45);
@@ -367,7 +364,6 @@ public class Robot extends TimedRobot {
         motor10rightarmclimb.set(0);
       }
     }
-  
   
   
   
