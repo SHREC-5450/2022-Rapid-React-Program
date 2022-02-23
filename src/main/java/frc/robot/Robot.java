@@ -33,7 +33,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 public class Robot extends TimedRobot {
 
 
-  public static final double fastSpeed = 0.5, slowSpeed = 0.25, trig_axis = 0.75, speedoffset = 1.008;
+  public static final double fastSpeed = 0.5, slowSpeed = 0.25, trig_axis = 0.75, speedoffset = 1;
 
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -51,6 +51,7 @@ public class Robot extends TimedRobot {
   CANSparkMax motor8launcher = new CANSparkMax(8, MotorType.kBrushless);
   CANSparkMax motor9leftarmclimb = new CANSparkMax(9, MotorType.kBrushless);
   CANSparkMax motor10rightarmclimb = new CANSparkMax(10, MotorType.kBrushless);
+  CANSparkMax motor11lift = new CANSparkMax(11, MotorType.kBrushless);
 
   XboxController controller1 = new XboxController(0);
   XboxController controller2 = new XboxController(1);
@@ -60,6 +61,7 @@ public class Robot extends TimedRobot {
   PowerDistribution pdh = new PowerDistribution();
   boolean inverse = false;
   boolean climber = false;
+  boolean intakeSwitch = false;
 
   ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
   CustomGyroscope gyro1 = new CustomGyroscope(arduino);
@@ -118,6 +120,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 8 launcher, current", pdh.getCurrent(13));
     //SmartDashboard.putNumber("Motor 9 left arm, current", pdh.getCurrent(9));
     //SmartDashboard.putNumber("Motor 10 right arm, current", pdh.getCurrent(0));
+    //SmartDashboard.putNumber("Motor 11 lift, current", pdh.getcurrent(15))
 
     SmartDashboard.putNumber("Motor 1 left, postion", motor1Left.getEncoder().getPosition());
     SmartDashboard.putNumber("Motor 2 left, postion", motor2Left.getEncoder().getPosition());
@@ -134,6 +137,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 8 launcher, velocity", motor8launcher.getEncoder().getVelocity());
     //SmartDashboard.putNumber("Motor 9 left arm, velocity", motor9leftarmclimb.getEncoder().getVelocity());
     //SmartDashboard.putNumber("Motor 10 right arm, velocity", motor10rightarmclimb.getEncoder().getVelocity());
+    //SmartDashboard.putNumber("Motor 11 lift, velocity", motor11lift.getEncoder().getVelocity());
 
     SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
 
@@ -264,6 +268,10 @@ public class Robot extends TimedRobot {
       climber = !climber;
     }
 
+    if (controller2.getStartButtonPressed()){
+      intakeSwitch = !intakeSwitch;
+    }
+
     if (controller1.getXButton()){
       speedright = fastSpeed;
       speedleft = fastSpeed;
@@ -300,7 +308,17 @@ public class Robot extends TimedRobot {
     else{
       motor5intake.set(0);
     }
-   
+    
+    if (intakeSwitch == true){
+     
+      if (motor11lift.getEncoder().getPosition() < 10.6 ){
+       motor11lift.set(.1);
+      }
+      if (motor11lift.getEncoder().getPosition() > 10.6){
+       motor11lift.set(0);
+      }
+  
+    }
 
     if (controller2.getRightTriggerAxis()>= trig_axis){
      motor7launcher.set(-.50);                                                                                                                                                                                                    
