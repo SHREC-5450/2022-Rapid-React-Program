@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 public class Robot extends TimedRobot {
 
 
-  public static final double fastSpeed = 0.5, slowSpeed = 0.25, trig_axis = 0.75, speedoffset = 1;
+  public static final double fastSpeed = 0.5, slowSpeed = 0.25, trig_axis = 0.75, speedoffset = 1, intake = 0.30, intakeLift = .05;
 
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -59,17 +59,18 @@ public class Robot extends TimedRobot {
   PowerDistribution pdh = new PowerDistribution();
   boolean inverse = false;
   boolean climber = false;
-  boolean intakeSwitch = false;
-
+  boolean intakeup = false;
+  boolean intakedown = false;
+  /*
   DigitalInput upperSwitchleft = new DigitalInput(0);
   DigitalInput upperSwitchright = new DigitalInput(1);
   DigitalInput lowerSwitchleft = new DigitalInput(2);
   DigitalInput lowerSwitchright = new DigitalInput(3);
-  
-  ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
-  CustomGyroscope gyro1 = new CustomGyroscope(arduino);
+  */
+  //ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
+  //CustomGyroscope gyro1 = new CustomGyroscope(arduino);
 
-  Thread gyroThread = new Thread(gyro1);
+  //Thread gyroThread = new Thread(gyro1);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -93,10 +94,10 @@ public class Robot extends TimedRobot {
     motor3Right.setOpenLoopRampRate(1.75);
     motor4Right.setOpenLoopRampRate(1.75);
     
-    gyro.calibrate();
-    gyro.getAngle();
+    //gyro.calibrate();
+   // gyro.getAngle();
 
-    gyroThread.start();
+    //gyroThread.start();
   }
 
   /**
@@ -120,7 +121,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 8 launcher, current", pdh.getCurrent(13));
     //SmartDashboard.putNumber("Motor 9 left arm, current", pdh.getCurrent(9));
     //SmartDashboard.putNumber("Motor 10 right arm, current", pdh.getCurrent(0));
-    //SmartDashboard.putNumber("Motor 11 lift, current", pdh.getcurrent(15));
+    SmartDashboard.putNumber("Motor 11 lift, current", pdh.getCurrent(15));
 
     SmartDashboard.putNumber("Motor 1 left, postion", motor1Left.getEncoder().getPosition());
     SmartDashboard.putNumber("Motor 2 left, postion", motor2Left.getEncoder().getPosition());
@@ -137,13 +138,13 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 8 launcher, velocity", motor8launcher.getEncoder().getVelocity());
     //SmartDashboard.putNumber("Motor 9 left arm, velocity", motor9leftarmclimb.getEncoder().getVelocity());
     //SmartDashboard.putNumber("Motor 10 right arm, velocity", motor10rightarmclimb.getEncoder().getVelocity());
-    //SmartDashboard.putNumber("Motor 11 lift, velocity", motor11lift.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Motor 11 lift, velocity", motor11lift.getEncoder().getVelocity());
 
-    SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
+    //SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
   
-    SmartDashboard.putNumber("Custom Gyro X", gyro1.getOrientationX());
-    SmartDashboard.putNumber("Custom Gyro Y", gyro1.getOrientationY());
-    SmartDashboard.putNumber("Custom Gyro Z", gyro1.getOrientationZ());
+    //SmartDashboard.putNumber("Custom Gyro X", gyro1.getOrientationX());
+    //SmartDashboard.putNumber("Custom Gyro Y", gyro1.getOrientationY());
+    //SmartDashboard.putNumber("Custom Gyro Z", gyro1.getOrientationZ());
   
   }
 
@@ -249,25 +250,28 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
+    /*
     upperSwitchleft.get();
     upperSwitchright.get();
     lowerSwitchleft.get();
     lowerSwitchright.get();
-
+    */
     double speedleft;
     double speedright;
 
     if(controller1.getBButtonPressed()){
       inverse = !inverse;
     }
-    
+    /*/
     if (controller1.getStartButtonPressed()){
       climber = !climber;
     }
-
-    if (controller2.getStartButtonPressed()){
-      intakeSwitch = !intakeSwitch;
+    /*/
+    if (controller2.getAButtonPressed()){
+      intakeup = !intakeup;
+    }
+    else if(controller2.getYButtonPressed()){
+      intakedown = !intakedown;
     }
 
     if (controller1.getXButton()){
@@ -298,34 +302,34 @@ public class Robot extends TimedRobot {
     }
 
     if (controller1.getRightBumper()){
-      motor5intake.set(-.25);
+      motor5intake.set(-intake);
     }
     else if (controller1.getLeftBumper()){
-      motor5intake.set(.25);
+      motor5intake.set(intake);
     }
     else{
       motor5intake.set(0);
     }
     
-    if (intakeSwitch == true ){
+    if (intakedown == true ){
       
-      if (motor11lift.getEncoder().getPosition() < 9.9375 ){
-       motor11lift.set(-.05);
+      if (motor11lift.getEncoder().getPosition() < 9.9375){
+       motor11lift.set(intakeLift);
       }
       else if (motor11lift.getEncoder().getPosition() >= 9.9375){
        motor11lift.set(0);
       }
       
     }
-    else if (controller2.getAButton() && intakeSwitch == false){
+    else if (intakeup == true){
       
       if (motor11lift.getEncoder().getPosition() > 6.625 ){
-        motor11lift.set(.05);
+        motor11lift.set(-intakeLift);
        }
       else if (motor11lift.getEncoder().getPosition() < 6.625){
         motor11lift.set(0);
       }
-
+      
     }
     
     if (controller2.getRightTriggerAxis()>= trig_axis){
@@ -352,7 +356,7 @@ public class Robot extends TimedRobot {
     }
 
    
-    if (climber == true) {
+    /*if (climber == true) {
       if (!upperSwitchleft.get() && !upperSwitchright.get()){
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
@@ -364,7 +368,7 @@ public class Robot extends TimedRobot {
         motor10rightarmclimb.set(0);
       }
     }
-  
+  */
   
   
   }

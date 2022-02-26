@@ -82,7 +82,6 @@ public class CustomGyroscope implements Runnable {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         orientation = getRaw('o');
         acceleration = getRaw('a');
     }
