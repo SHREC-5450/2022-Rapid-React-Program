@@ -54,19 +54,21 @@ public class Robot extends TimedRobot {
   XboxController controller1 = new XboxController(0);
   XboxController controller2 = new XboxController(1);
   Timer timergametime = new Timer();
-  Timer climbertime = new Timer();
   ADXRS450_Gyro gyro = new ADXRS450_Gyro();
   PowerDistribution pdh = new PowerDistribution();
   boolean inverse = false;
-  boolean climber = false;
+  boolean ClimbUp = false;
+  boolean ClimbDown = false;
   boolean intakeup = false;
   boolean intakedown = false;
-  /*
-  DigitalInput upperSwitchleft = new DigitalInput(0);
-  DigitalInput upperSwitchright = new DigitalInput(1);
-  DigitalInput lowerSwitchleft = new DigitalInput(2);
-  DigitalInput lowerSwitchright = new DigitalInput(3);
-  */
+
+  DigitalInput IntakeDownCircuit = new DigitalInput(0);
+  DigitalInput IntakeUpCircuit = new DigitalInput(1);
+  DigitalInput lowerClimberLimitleft = new DigitalInput(2);
+  DigitalInput lowerClimberLimitright = new DigitalInput(3);
+  DigitalInput upperClimberLimitleft = new DigitalInput(8);
+  DigitalInput upperClimberLimitright = new DigitalInput(9);
+
   //ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
   //CustomGyroscope gyro1 = new CustomGyroscope(arduino);
 
@@ -250,23 +252,32 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    /*
-    upperSwitchleft.get();
-    upperSwitchright.get();
-    lowerSwitchleft.get();
-    lowerSwitchright.get();
-    */
+
+    if (ClimbDown == false) {
+      if (lowerClimberLimitleft.get() == false && lowerClimberLimitright.get() == false) {
+        motor9leftarmclimb.set(.05);
+        motor10rightarmclimb.set(.05);
+      }
+      else if (lowerClimberLimitleft.get() == true && lowerClimberLimitright.get() == true) {
+        motor9leftarmclimb.set(0);
+        motor10rightarmclimb.set(0);
+      }
+    }
+   
     double speedleft;
     double speedright;
 
     if(controller1.getBButtonPressed()){
       inverse = !inverse;
     }
-    /*/
-    if (controller1.getStartButtonPressed()){
-      climber = !climber;
+
+    if (controller1.getYButtonPressed()){
+      ClimbUp = !ClimbUp;
     }
-    /*/
+    else if (controller1.getAButtonPressed()) {
+      ClimbDown = !ClimbDown;
+    }
+
     if (controller2.getAButtonPressed()){
       intakeup = !intakeup;
     }
@@ -311,22 +322,24 @@ public class Robot extends TimedRobot {
       motor5intake.set(0);
     }
     
-    if (intakedown == true ){
+    if (intakedown == true){
       
-      if (motor11lift.getEncoder().getPosition() < 9.9375){
+      if (IntakeDownCircuit.get() == true){
        motor11lift.set(intakeLift);
       }
-      else if (motor11lift.getEncoder().getPosition() >= 9.9375){
-       motor11lift.set(0);
+      else if (IntakeDownCircuit.get() == false){
+        motor11lift.set(0);
+        intakedown = false;
       }
       
     }
     else if (intakeup == true){
       
-      if (motor11lift.getEncoder().getPosition() > 6.625 ){
+      if (IntakeUpCircuit.get() == true){
         motor11lift.set(-intakeLift);
        }
-      else if (motor11lift.getEncoder().getPosition() < 6.625){
+      else if (IntakeUpCircuit.get() == false){
+        intakeup = false;
         motor11lift.set(0);
       }
       
@@ -356,19 +369,31 @@ public class Robot extends TimedRobot {
     }
 
    
-    /*if (climber == true) {
-      if (!upperSwitchleft.get() && !upperSwitchright.get()){
+    if (ClimbUp == true) {
+      if (upperClimberLimitleft.get() == false && upperClimberLimitright.get() == false){
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
       }
       
-      else if (!lowerSwitchleft.get() && !lowerSwitchright.get() && upperSwitchleft.get() && upperSwitchright.get()) {
-        climber = false;
+      else if (upperClimberLimitleft.get() == true && upperClimberLimitright.get() == true) {
         motor9leftarmclimb.set(0);
         motor10rightarmclimb.set(0);
+        ClimbUp = !ClimbUp;
       }
     }
-  */
+    
+    if (ClimbDown == true) {
+      if (lowerClimberLimitleft.get() == false && lowerClimberLimitright.get() == false){
+        motor9leftarmclimb.set(.1);
+        motor10rightarmclimb.set(.1);
+      }
+      
+      else if (lowerClimberLimitleft.get() == true && lowerClimberLimitright.get() == true) {
+        motor9leftarmclimb.set(0);
+        motor10rightarmclimb.set(0);
+        ClimbDown = !ClimbDown;
+      }
+    }
   
   
   }
@@ -379,7 +404,16 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    if (lowerClimberLimitleft.get() == false && lowerClimberLimitright.get() == false) {
+      motor9leftarmclimb.set(.05);
+      motor10rightarmclimb.set(.05);
+    }
+    else if (lowerClimberLimitleft.get() == true && lowerClimberLimitright.get() == true) {
+      motor9leftarmclimb.set(0);
+      motor10rightarmclimb.set(0);
+    }
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
