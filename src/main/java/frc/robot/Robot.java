@@ -381,8 +381,7 @@ public class Robot extends TimedRobot {
         ClimbUp = !ClimbUp;
       }
     }
-    
-    if (ClimbDown == true) {
+    else if (ClimbDown == true) {
       if (lowerClimberLimitleft.get() == false && lowerClimberLimitright.get() == false){
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
