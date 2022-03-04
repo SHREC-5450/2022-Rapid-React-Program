@@ -15,7 +15,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+//import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
 
@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 public class Robot extends TimedRobot {
 
 
-  public static final double fastSpeed = 0.5, slowSpeed = 0.25, trig_axis = 0.75, speedoffset = 1, intake = 0.30, intakeLift = .05;
+  public static final double fastSpeed = 0.5, slowSpeed = 0.25, trig_axis = 0.75, speedoffset = 1, intake = 0.30, intakeLift = .1, motorAutonomous = 0.25;
 
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -54,13 +54,9 @@ public class Robot extends TimedRobot {
   XboxController controller1 = new XboxController(0);
   XboxController controller2 = new XboxController(1);
   Timer timergametime = new Timer();
-  ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+  //ADXRS450_Gyro gyro = new ADXRS450_Gyro();
   PowerDistribution pdh = new PowerDistribution();
   boolean inverse = false;
-  boolean ClimbUp = false;
-  boolean ClimbDown = false;
-  boolean intakeup = false;
-  boolean intakedown = false;
 
   DigitalInput IntakeDownCircuit = new DigitalInput(0);
   DigitalInput IntakeUpCircuit = new DigitalInput(1);
@@ -121,8 +117,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 7 launcher, current", pdh.getCurrent(17)); 
     SmartDashboard.putNumber("Motor 6 launcher, current", pdh.getCurrent(12));
     SmartDashboard.putNumber("Motor 8 launcher, current", pdh.getCurrent(13));
-    //SmartDashboard.putNumber("Motor 9 left arm, current", pdh.getCurrent(9));
-    //SmartDashboard.putNumber("Motor 10 right arm, current", pdh.getCurrent(0));
+    SmartDashboard.putNumber("Motor 9 left arm, current", pdh.getCurrent(9));
+    SmartDashboard.putNumber("Motor 10 right arm, current", pdh.getCurrent(0));
     SmartDashboard.putNumber("Motor 11 lift, current", pdh.getCurrent(15));
 
     SmartDashboard.putNumber("Motor 1 left, postion", motor1Left.getEncoder().getPosition());
@@ -138,10 +134,13 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 7 launcher, velocity", motor7launcher.getEncoder().getVelocity()); 
     SmartDashboard.putNumber("Motor 6 launcher, velocity", motor6index.getEncoder().getVelocity()); 
     SmartDashboard.putNumber("Motor 8 launcher, velocity", motor8launcher.getEncoder().getVelocity());
-    //SmartDashboard.putNumber("Motor 9 left arm, velocity", motor9leftarmclimb.getEncoder().getVelocity());
-    //SmartDashboard.putNumber("Motor 10 right arm, velocity", motor10rightarmclimb.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Motor 9 left arm, velocity", motor9leftarmclimb.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Motor 10 right arm, velocity", motor10rightarmclimb.getEncoder().getVelocity());
     SmartDashboard.putNumber("Motor 11 lift, velocity", motor11lift.getEncoder().getVelocity());
 
+    SmartDashboard.putNumber("POV Value",controller1.getPOV());
+    SmartDashboard.putBoolean("UpperLimitleft",upperClimberLimitleft.get());
+    SmartDashboard.putBoolean("UpperLimitleft",upperClimberLimitright.get());
     //SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
   
     //SmartDashboard.putNumber("Custom Gyro X", gyro1.getOrientationX());
@@ -168,71 +167,49 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     //m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-   
-   /*while (motor3Right.getEncoder().getPosition() < 21.2 ){
-    motor3Right.set(.25);
-  
-   if (motor3Right.getEncoder().getPosition() > 21.2 ){
-    motor3Right.set(0);
-}
-}*/
-   
+    
     timergametime.start();
     
-    timergametime.get();
-        
-    while (timergametime.get() < 17 ){
-     gyro.getAngle();
-      
-     if (timergametime.get() < 6){
-      motor1Left.set(.252);
-      motor2Left.set(.252);
-      motor3Right.set(-.25);
-      motor4Right.set(-.25);
-     
-     }
-      else if (timergametime.get() > 6 && timergametime.get() < 7){
-      motor1Left.set(0);
-      motor2Left.set(0);
-      motor3Right.set(0);
-      motor4Right.set(0);
-
-     }
-     if (timergametime.get() > 7 && timergametime.get() < 8 ){
-      motor1Left.set(.2);
-      motor2Left.set(.2);
-      motor3Right.set(.2);
-      motor4Right.set(.2);
-     }
-     else if (timergametime.get() > 8 && timergametime.get() < 11){
-      motor1Left.set(0);
-      motor2Left.set(0);
-      motor3Right.set(0);
-      motor4Right.set(0);
-      motor6index.set(.2);
-      motor7launcher.set(.2);
-      motor8launcher.set(.2);
-     }
-     else {
-      motor6index.set(0);
-      motor7launcher.set(0);
-      motor8launcher.set(0);
-    }
-    }
-     
-}
+   }
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
       case kCustomAuto:
-        // Put custom auto code here
-       
         
+        // Put custom auto code here
+        if (timergametime.get() < 15){
+          //gyro.getAngle();
+           
+          if (timergametime.get() < 2.4){
+           runDrive(motorAutonomous, -motorAutonomous);
+          }
+          else if (timergametime.get() > 2.4 && timergametime.get() < 3.5){
+            runDrive(0, 0);
+          }
+          else if (timergametime.get() > 3.5 && timergametime.get() < 5.5){
+            motor7launcher.set(-.4);
+            motor8launcher.set(-.35);
+          }
+          else if (timergametime.get() > 5.5 && timergametime.get() < 8){
+            motor7launcher.set(-.4);
+            motor8launcher.set(-.35);
+            motor6index.set(intake);
+          }
+          else {
+           motor6index.set(0);
+           motor7launcher.set(0);
+           motor8launcher.set(0);
+         }
+        }
+        
+
+
          break;
+         
 
       case kCustomAuto2:
-
+        
         break;
           
       case kDefaultAuto:
@@ -252,37 +229,12 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
-    if (ClimbDown == false) {
-      if (lowerClimberLimitleft.get() == false && lowerClimberLimitright.get() == false) {
-        motor9leftarmclimb.set(.05);
-        motor10rightarmclimb.set(.05);
-      }
-      else if (lowerClimberLimitleft.get() == true && lowerClimberLimitright.get() == true) {
-        motor9leftarmclimb.set(0);
-        motor10rightarmclimb.set(0);
-      }
-    }
    
     double speedleft;
     double speedright;
 
     if(controller1.getBButtonPressed()){
       inverse = !inverse;
-    }
-
-    if (controller1.getYButtonPressed()){
-      ClimbUp = !ClimbUp;
-    }
-    else if (controller1.getAButtonPressed()) {
-      ClimbDown = !ClimbDown;
-    }
-
-    if (controller2.getAButtonPressed()){
-      intakeup = !intakeup;
-    }
-    else if(controller2.getYButtonPressed()){
-      intakedown = !intakedown;
     }
 
     if (controller1.getXButton()){
@@ -309,7 +261,7 @@ public class Robot extends TimedRobot {
       runDrive(left, right);
     }
     else{
-      runDrive(0,0);
+      runDrive(0, 0);
     }
 
     if (controller1.getRightBumper()){
@@ -322,32 +274,33 @@ public class Robot extends TimedRobot {
       motor5intake.set(0);
     }
     
-    if (intakedown == true){
+    if (controller2.getAButton()){
       
-      if (IntakeDownCircuit.get() == true){
-       motor11lift.set(intakeLift);
+      if (IntakeDownCircuit.get() == false){
+       motor11lift.set(-intakeLift);
       }
-      else if (IntakeDownCircuit.get() == false){
+      else if (IntakeDownCircuit.get() == true){
         motor11lift.set(0);
-        intakedown = false;
       }
       
     }
-    else if (intakeup == true){
+    else if (controller2.getYButton()){
       
-      if (IntakeUpCircuit.get() == true){
-        motor11lift.set(-intakeLift);
+      if (IntakeUpCircuit.get() == false){
+        motor11lift.set(intakeLift);
        }
-      else if (IntakeUpCircuit.get() == false){
-        intakeup = false;
+      else if (IntakeUpCircuit.get() == true){
         motor11lift.set(0);
       }
       
+    }
+    else {
+      motor11lift.set(0);
     }
     
     if (controller2.getRightTriggerAxis()>= trig_axis){
-     motor7launcher.set(-.50);                                                                                                                                                                                                    
-     motor8launcher.set(-.45);
+     motor7launcher.set(-.40);                                                                                                                                                                                                    
+     motor8launcher.set(-.28);
     }
    else{
      motor7launcher.set(0);
@@ -357,7 +310,7 @@ public class Robot extends TimedRobot {
     if (controller2.getLeftTriggerAxis()>=trig_axis && controller2.getXButton()){
       motor6index.set(.5);
     }
-    else if (controller2.getLeftTriggerAxis()>=trig_axis && controller2.getBButton()){
+    else if (controller2.getRightBumper()){
       motor6index.set(-.15);
       motor8launcher.set(.3);
     }
@@ -369,31 +322,38 @@ public class Robot extends TimedRobot {
     }
 
    
-    if (ClimbUp == true) {
-      if (upperClimberLimitleft.get() == false && upperClimberLimitright.get() == false){
-        motor9leftarmclimb.set(.1);
-        motor10rightarmclimb.set(.1);
+    if (controller1.getPOV() == 0) {
+      if (upperClimberLimitleft.get() == false || upperClimberLimitright.get() == false){
+        motor9leftarmclimb.set(-.1);
+        motor10rightarmclimb.set(-.1);
       }
       
-      else if (upperClimberLimitleft.get() == true && upperClimberLimitright.get() == true) {
+      else if (upperClimberLimitleft.get() == true || upperClimberLimitright.get() == true) {
         motor9leftarmclimb.set(0);
         motor10rightarmclimb.set(0);
-        ClimbUp = !ClimbUp;
       }
     }
-    else if (ClimbDown == true) {
-      if (lowerClimberLimitleft.get() == false && lowerClimberLimitright.get() == false){
+    else if (controller1.getPOV() == 180) {
+      if (lowerClimberLimitleft.get() == false || lowerClimberLimitright.get() == false){
         motor9leftarmclimb.set(.1);
         motor10rightarmclimb.set(.1);
       }
       
+      else if (lowerClimberLimitleft.get() == true || lowerClimberLimitright.get() == true) {
+        motor9leftarmclimb.set(0);
+        motor10rightarmclimb.set(0);
+      }
+    else {
+      if (lowerClimberLimitleft.get() == false && lowerClimberLimitright.get() == false) {
+        motor9leftarmclimb.set(.05);
+        motor10rightarmclimb.set(.05);
+      }
       else if (lowerClimberLimitleft.get() == true && lowerClimberLimitright.get() == true) {
         motor9leftarmclimb.set(0);
         motor10rightarmclimb.set(0);
-        ClimbDown = !ClimbDown;
       }
     }
-  
+  }
   
   }
 
@@ -404,6 +364,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
+    
     if (lowerClimberLimitleft.get() == false && lowerClimberLimitright.get() == false) {
       motor9leftarmclimb.set(.05);
       motor10rightarmclimb.set(.05);
@@ -412,6 +373,7 @@ public class Robot extends TimedRobot {
       motor9leftarmclimb.set(0);
       motor10rightarmclimb.set(0);
     }
+    
   }
 
   /** This function is called once when test mode is enabled. */
@@ -422,11 +384,11 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {}
 
-
   public void runDrive(double leftSpeed, double rightSpeed) {
     motor1Left.set(leftSpeed * speedoffset);
     motor2Left.set(leftSpeed * speedoffset);
     motor3Right.set(rightSpeed);
     motor4Right.set(rightSpeed);
   }
+  public void sleep(double sleeptime){}
 }
