@@ -11,7 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
 
-import javax.security.auth.callback.LanguageCallback;
+import com.ctre.phoenix.sensors.PigeonIMU;
+
+//import javax.security.auth.callback.LanguageCallback;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -19,10 +21,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+//import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.Servo;
 
 //import frc.robot.ArduinoI2CServer;
 //import frc.robot.CustomGyroscope;
@@ -55,12 +56,12 @@ public class Robot extends TimedRobot {
   CANSparkMax motor9leftarmclimb = new CANSparkMax(9, MotorType.kBrushless);
   CANSparkMax motor10rightarmclimb = new CANSparkMax(10, MotorType.kBrushless);
   CANSparkMax motor11lift = new CANSparkMax(11, MotorType.kBrushless);
+  PigeonIMU BotOrientation = new PigeonIMU(12);
 
   XboxController controller1 = new XboxController(0);
   XboxController controller2 = new XboxController(1);
   Timer timergametime = new Timer();
   Timer launchtime = new Timer();
-  //ADXRS450_Gyro gyro = new ADXRS450_Gyro();
   PowerDistribution pdh = new PowerDistribution();
   boolean inverse = false;
   boolean fast = false;
@@ -70,17 +71,9 @@ public class Robot extends TimedRobot {
   DigitalInput IntakeUpCircuit = new DigitalInput(1);
   DigitalInput lowerClimberLimitleft = new DigitalInput(2);
   DigitalInput lowerClimberLimitright = new DigitalInput(3);
-  //DigitalInput upperClimberLimitleft = new DigitalInput(8);
-  //DigitalInput upperClimberLimitright = new DigitalInput(9);
+  DigitalInput upperClimberLimitleft = new DigitalInput(9);
+  DigitalInput upperClimberLimitright = new DigitalInput(8);
   
-
-  //Servo climberswitchleft = new Servo(0);
-  //Servo climberswitchright = new Servo(9);
-
-  //ArduinoI2CServer arduino = new ArduinoI2CServer(0x27);
-  //CustomGyroscope gyro1 = new CustomGyroscope(arduino);
-
-  //Thread gyroThread = new Thread(gyro1);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -153,6 +146,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Motor 9 left arm, velocity", motor9leftarmclimb.getEncoder().getVelocity());
     SmartDashboard.putNumber("Motor 10 right arm, velocity", motor10rightarmclimb.getEncoder().getVelocity());
     SmartDashboard.putNumber("Motor 11 lift, velocity", motor11lift.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Yaw Angle", BotOrientation.getYaw());
 
     //SmartDashboard.putNumber("Gyro 1, Angle", gyro.getAngle());
   
@@ -182,6 +176,7 @@ public class Robot extends TimedRobot {
     System.out.println("Auto selected: " + m_autoSelected);
     
     timergametime.start();
+    BotOrientation.setYaw(0);
     
    }
   /** This function is called periodically during autonomous. */
@@ -194,24 +189,24 @@ public class Robot extends TimedRobot {
         if (timergametime.get() < 15){
           //gyro.getAngle();
 
-          double delay1 = 1.55,
-          delay2 = delay1 + 0.75,
-          delay3 = delay2 + 1,
-          delay4 = delay3 + 2.1;
+          double Onedelay1 = 1.55,
+          Onedelay2 = Onedelay1 + 0.75,
+          Onedelay3 = Onedelay2 + 1,
+          Onedelay4 = Onedelay3 + 2.1;
            
-          if (timergametime.get() < delay1){
+          if (timergametime.get() < Onedelay1){
             motor7launcher.set(-autoLauncherpower);
             motor8launcher.set(-autoLauncherpower - .06);
           }
-          else if (timergametime.get() > delay1 && timergametime.get() < delay2){
+          else if (timergametime.get() > Onedelay1 && timergametime.get() < Onedelay2){
             motor6index.set(intake);
           }
-          else if (timergametime.get() > delay2 && timergametime.get() < delay3){
+          else if (timergametime.get() > Onedelay2 && timergametime.get() < Onedelay3){
             motor6index.set(0);
             motor7launcher.set(0);
             motor8launcher.set(0);
           }
-          else if (timergametime.get() > delay3 && timergametime.get() < delay4){
+          else if (timergametime.get() > Onedelay3 && timergametime.get() < Onedelay4){
             runDrive(motorAutonomous, -motorAutonomous);
           }
           else {
@@ -228,10 +223,20 @@ public class Robot extends TimedRobot {
          
 
       case kCustomAuto2:
-
+      /*
        if (timergametime.get() < 15){
-         
+         double TwoDelay1 = 1.55,
+         TwoDelay2 = TwoDelay1 + .5;
+
+         if (timergametime.get() < TwoDelay1){
+           motor7launcher.set(-autoLauncherpower);
+           motor8launcher.set(-autoLauncherpower - .06);
+         }
+         else if (timergametime.get() < TwoDelay2 && timergametime.get() > TwoDelay1){
+           motor11lift.set(-intakeLift);
+         }
        }  
+       */
         break;
           
       case kDefaultAuto:
@@ -356,23 +361,51 @@ public class Robot extends TimedRobot {
     }
 
     if (fastlift == true) {
-      if (controller1.getPOV() == 0) {
-        motor9leftarmclimb.set(climberPower);
-        motor10rightarmclimb.set(climberPower);
+      if (upperClimberLimitleft.get() == true && upperClimberLimitright.get() == true){
+        if (controller1.getPOV() == 0) {
+          runClimb(climberPower, climberPower);
+        }
+        else{
+          runClimb(0, 0);
+        }
       }
-      else if (controller1.getPOV() == 180) {
-        motor9leftarmclimb.set(-climberPower);
-        motor10rightarmclimb.set(-climberPower);
+      else{
+        runClimb(0, 0);
+      }
+      if (lowerClimberLimitleft.get() == true && lowerClimberLimitright.get() == true){
+        if (controller1.getPOV() == 180) {
+          runClimb(-climberPower, -climberPower);
+        }
+        else {
+          runClimb(0, 0);
+        }
+      }
+      else{
+        runClimb(0, 0);
       }
     }
     else {
-      if (controller1.getPOV() == 0) {
-        motor9leftarmclimb.set(climberpower);
-        motor10rightarmclimb.set(climberpower);
+      if (upperClimberLimitleft.get() == true && upperClimberLimitright.get() == true){
+        if (controller1.getPOV() == 0) {
+          runClimb(climberpower, climberpower);
+        }
+        else{
+          runClimb(0, 0);
+        }
       }
-      else if (controller1.getPOV() == 180) {
-        motor9leftarmclimb.set(-climberpower);
-        motor10rightarmclimb.set(-climberpower);
+      else{
+        runClimb(0, 0);
+      }
+      if (lowerClimberLimitleft.get() == true && lowerClimberLimitright.get() == true){
+        if (controller1.getPOV() == 180) {
+          runClimb(-climberpower, -climberpower);
+        }
+        else{
+          runClimb(0, 0);
+        }
+      }
+      else{
+        runClimb(0, 0);
       }
     }
   }
@@ -383,18 +416,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {
-    
-    if (lowerClimberLimitright.get() == true) {
-      motor9leftarmclimb.set(.05);
-      motor10rightarmclimb.set(.05);
-    }
-    else if (lowerClimberLimitright.get() == false) {
-      motor9leftarmclimb.set(0);
-      motor10rightarmclimb.set(0);
-    }
-    
-  }
+  public void disabledPeriodic() {}
 
 
   /** This function is called once when test mode is enabled. */
@@ -411,5 +433,8 @@ public class Robot extends TimedRobot {
     motor3Right.set(rightSpeed);
     motor4Right.set(rightSpeed);
   }
-  public void sleep(double sleeptime){}
+  public void runClimb(double LeftPower, double RightPower) {
+    motor9leftarmclimb.set(LeftPower);
+    motor10rightarmclimb.set(RightPower);
+  }
 }
